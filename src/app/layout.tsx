@@ -9,13 +9,32 @@ export const metadata: Metadata = {
   title: "Musical Loop App",
   description: "Upload and manipulate audio loops",
   manifest: "/manifest.json",
+  themeColor: "#000000",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Musical Loop App",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Musical Loop App",
+    title: "Musical Loop App",
+    description: "Upload and manipulate audio loops",
+  },
+  twitter: {
+    card: "summary",
+    title: "Musical Loop App",
+    description: "Upload and manipulate audio loops",
+  },
 }
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#000000",
 }
 
 export default function RootLayout({
@@ -25,10 +44,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
-      </head>
       <body className={inter.className}>{children}</body>
     </html>
   )
