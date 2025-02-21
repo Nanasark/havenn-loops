@@ -19,7 +19,7 @@ export default function Controls({ tempo, pitch, onTempoChange, onPitchChange }:
   return (
     <div className="flex flex-col gap-6 w-full max-w-xs mx-auto">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-green-600">Tempo: {tempo}%</span>
+        <span className="text-sm font-medium text-green-700">Tempo: {tempo}%</span>
         <div className="flex gap-2">
           <button
             onClick={() => handleTempoChange(-1)}
