@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { subscribeUser, unsubscribeUser, sendNotification } from "../app/actions.ts"
+import { subscribeUser, unsubscribeUser, sendNotification } from "../app/actions"
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4)
@@ -29,35 +29,53 @@ export default function PushNotificationManager() {
   }, [])
 
   async function registerServiceWorker() {
-    const registration = await navigator.serviceWorker.register("/sw.js", {
-      scope: "/",
-      updateViaCache: "none",
-    })
-    const sub = await registration.pushManager.getSubscription()
-    setSubscription(sub)
+    try {
+      const registration = await navigator.serviceWorker.register("/sw.js", {
+        scope: "/",
+        updateViaCache: "none",
+      })
+      const sub = await registration.pushManager.getSubscription()
+      setSubscription(sub)
+    } catch (error) {
+      console.error("Failed to register service worker:", error)
+    }
   }
 
   async function subscribeToPush() {
-    const registration = await navigator.serviceWorker.ready
-    const sub = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
-    })
-    setSubscription(sub)
-    const serializedSub = JSON.parse(JSON.stringify(sub))
-    await subscribeUser(serializedSub)
+    try {
+      const registration = await navigator.serviceWorker.ready
+      const sub = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
+      })
+      setSubscription(sub)
+      await subscribeUser(sub)
+    } catch (error) {
+      console.error("Failed to subscribe to push notifications:", error)
+    }
   }
 
   async function unsubscribeFromPush() {
-    await subscription?.unsubscribe()
-    setSubscription(null)
-    await unsubscribeUser()
+    try {
+      if (subscription) {
+        await subscription.unsubscribe()
+        await unsubscribeUser(subscription)
+        setSubscription(null)
+      }
+    } catch (error) {
+      console.error("Failed to unsubscribe from push notifications:", error)
+    }
   }
 
   async function sendTestNotification() {
     if (subscription) {
-      await sendNotification(message)
-      setMessage("")
+      try {
+        const result = await sendNotification(message)
+        console.log(result.message)
+        setMessage("")
+      } catch (error) {
+        console.error("Failed to send notification:", error)
+      }
     }
   }
 

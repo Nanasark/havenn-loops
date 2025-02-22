@@ -1,84 +1,20 @@
 "use client"
 
-import type React from "react"
-import { useState, useRef, useEffect } from "react"
-import * as Tone from "tone"
-import { Music, Plus, Minus } from "lucide-react"
+import { useState } from "react"
+import FileUpload from "../components/FileUpload"
+import AudioPlayer from "../components/AudioPlayer"
+import Controls from "../components/Controls"
 import PushNotificationManager from "../components/PushNotificationManager"
 import InstallPrompt from "../components/InstallPrompt"
 
 export default function Home() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
   const [tempo, setTempo] = useState(100)
   const [pitch, setPitch] = useState(100)
-  const [isLoaded, setIsLoaded] = useState(false)
-  const playerRef = useRef<Tone.Player | null>(null)
-  const pitchShiftRef = useRef<Tone.PitchShift | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    if (audioUrl) {
-      const setupAudio = async () => {
-        await Tone.start()
-        playerRef.current = new Tone.Player(audioUrl)
-        pitchShiftRef.current = new Tone.PitchShift()
-        playerRef.current.chain(pitchShiftRef.current, Tone.Destination)
-        playerRef.current.loop = true
-        await playerRef.current.load(audioUrl)
-        setIsLoaded(true)
-      }
-      setupAudio()
-    }
-    return () => {
-      playerRef.current?.dispose()
-      pitchShiftRef.current?.dispose()
-    }
-  }, [audioUrl])
-
-  useEffect(() => {
-    if (playerRef.current) {
-      playerRef.current.playbackRate = tempo / 100
-    }
-  }, [tempo])
-
-  useEffect(() => {
-    if (pitchShiftRef.current) {
-      pitchShiftRef.current.pitch = Math.log2(pitch / 100) * 12
-    }
-  }, [pitch])
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const url = URL.createObjectURL(file)
-      setAudioUrl(url)
-    }
-  }
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click()
-  }
-
-  const togglePlayPause = async () => {
-    if (!isLoaded) return
-    if (isPlaying) {
-      await Tone.Transport.stop()
-      playerRef.current?.stop()
-    } else {
-      await Tone.start()
-      playerRef.current?.start()
-      Tone.Transport.start()
-    }
-    setIsPlaying(!isPlaying)
-  }
-
-  const handleTempoChange = (delta: number) => {
-    setTempo(Math.max(50, Math.min(200, tempo + delta)))
-  }
-
-  const handlePitchChange = (delta: number) => {
-    setPitch(Math.max(50, Math.min(200, pitch + delta)))
+  const handleFileUpload = (file: File) => {
+    const url = URL.createObjectURL(file)
+    setAudioUrl(url)
   }
 
   return (
@@ -88,65 +24,16 @@ export default function Home() {
           <h1 className="text-2xl font-bold text-center">Musical Loop App</h1>
         </div>
         <div className="p-4 space-y-6">
-          <input ref={fileInputRef} type="file" accept="audio/*" onChange={handleFileUpload} className="hidden" />
-          <button
-            onClick={triggerFileInput}
-            className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
-          >
-            <Music className="mr-2" /> Add Music
-          </button>
+          <FileUpload onFileUpload={handleFileUpload} />
           {audioUrl && (
             <>
-              <div className="flex justify-center">
-                <button
-                  onClick={togglePlayPause}
-                  disabled={!isLoaded}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  {isPlaying ? "Pause" : "Play"}
-                </button>
-              </div>
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Tempo: {tempo}%</span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleTempoChange(-1)}
-                      className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleTempoChange(1)}
-                      className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Pitch: {pitch}%</span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handlePitchChange(-1)}
-                      className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <button
-                      onClick={() => handlePitchChange(1)}
-                      className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <AudioPlayer audioUrl={audioUrl} tempo={tempo} pitch={pitch} />
+              <Controls tempo={tempo} pitch={pitch} onTempoChange={setTempo} onPitchChange={setPitch} />
             </>
           )}
         </div>
       </div>
-      <div className="mt-8">
+      <div className="mt-8 w-full max-w-md">
         <PushNotificationManager />
         <InstallPrompt />
       </div>

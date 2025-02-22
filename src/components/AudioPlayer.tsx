@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from "react"
 import * as Tone from "tone"
-import Visualizer from "./Visualizer"
+import { Play, Pause } from "lucide-react"
 
 interface AudioPlayerProps {
   audioUrl: string
@@ -15,28 +15,18 @@ export default function AudioPlayer({ audioUrl, tempo, pitch }: AudioPlayerProps
   const [isLoaded, setIsLoaded] = useState(false)
   const playerRef = useRef<Tone.Player | null>(null)
   const pitchShiftRef = useRef<Tone.PitchShift | null>(null)
-  const analyserRef = useRef<AnalyserNode | null>(null)
 
   useEffect(() => {
     const setupAudio = async () => {
       await Tone.start()
       playerRef.current = new Tone.Player(audioUrl)
       pitchShiftRef.current = new Tone.PitchShift()
-
-      // Create AnalyserNode
-      const analyser = Tone.getContext().createAnalyser()
-      analyser.fftSize = 2048
-      analyserRef.current = analyser
-
-      playerRef.current.chain(pitchShiftRef.current, analyser, Tone.Destination)
-
+      playerRef.current.chain(pitchShiftRef.current, Tone.Destination)
       playerRef.current.loop = true
       await playerRef.current.load(audioUrl)
       setIsLoaded(true)
     }
-
     setupAudio()
-
     return () => {
       playerRef.current?.dispose()
       pitchShiftRef.current?.dispose()
@@ -57,7 +47,6 @@ export default function AudioPlayer({ audioUrl, tempo, pitch }: AudioPlayerProps
 
   const togglePlayPause = async () => {
     if (!isLoaded) return
-
     if (isPlaying) {
       await Tone.Transport.stop()
       playerRef.current?.stop()
@@ -70,14 +59,13 @@ export default function AudioPlayer({ audioUrl, tempo, pitch }: AudioPlayerProps
   }
 
   return (
-    <div className="flex flex-col items-center mt-4 space-y-4">
-      <Visualizer analyser={analyserRef.current} />
+    <div className="flex justify-center mt-4">
       <button
         onClick={togglePlayPause}
         disabled={!isLoaded}
-        className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
       >
-        {isPlaying ? "Pause" : "Play"}
+        {isPlaying ? <Pause size={24} /> : <Play size={24} />}
       </button>
     </div>
   )
