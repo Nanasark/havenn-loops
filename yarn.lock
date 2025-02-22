@@ -1327,6 +1327,13 @@
   resolved "https://registry.yarnpkg.com/@types/trusted-types/-/trusted-types-2.0.7.tgz#baccb07a970b91707df3a3e8ba6896c57ead2d11"
   integrity sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==
 
+"@types/web-push@^3.6.4":
+  version "3.6.4"
+  resolved "https://registry.yarnpkg.com/@types/web-push/-/web-push-3.6.4.tgz#4c6e10d3963ba51e7b4b8fff185f43612c0d1346"
+  integrity sha512-GnJmSr40H3RAnj0s34FNTcJi1hmWFV5KXugE0mYWnYhgTAHLJ/dJKAwDmvPJYMke0RplY2XE9LnM4hqSqKIjhQ==
+  dependencies:
+    "@types/node" "*"
+
 "@typescript-eslint/eslint-plugin@^5.4.2 || ^6.0.0 || ^7.0.0 || ^8.0.0":
   version "8.24.1"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.24.1.tgz#d104c2a6212304c649105b18af2c110b4a1dd4ae"
